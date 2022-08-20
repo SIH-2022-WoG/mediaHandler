@@ -7,11 +7,11 @@ const cookieParser = require('cookie-parser');
 const compression = require('compression');
 const morgan = require('morgan');
 const cors = require('cors');
+const cloudinary = require('cloudinary').v2;
 const helmet = require('helmet');
 const dotenv = require('dotenv');
 const { promisify } = require('util');
 const app = (module.exports = express());
-
 // dont add any config before this line
 dotenv.config({ path: './config/.env' });
 // Setting global variables, Please don't move this. Please add dependency after this line
@@ -36,6 +36,14 @@ app.use('/', express.static(path.join(__dirname, 'public')));
 app.options('*', cors());
 app.use(cors());
 app.use(morgan('dev'));
+
+// cloudinary config
+cloudinary.config({
+  cloud_name: CLOUDINARY_CLOUD_NAME,
+  api_key: CLOUDINARY_API_KEY,
+  api_secret: CLOUDINARY_API_SECRET,
+  secure: true,
+});
 
 // routes
 require('./routes')(app);

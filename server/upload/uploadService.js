@@ -20,11 +20,15 @@ module.exports = {
     const path = req.file.path;
     try {
       const res = await cloudinary.uploader.upload(path, {
+        folder: 'images',
         resource_type: 'image',
       });
       console.log(res);
       response = new responseMessage.GenericSuccessMessage();
-      response.data = res;
+      response.media = {
+        publicId: res.public_id,
+        url: res.secure_url,
+      };
       return callback(null, response, response.code);
     } catch (err) {
       console.log('ERROR in cloudinary upload service', err);

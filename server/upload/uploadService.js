@@ -36,4 +36,31 @@ module.exports = {
       return callback(null, response, response.code);
     }
   },
+
+  cloudPdfUpload: async (req, callback) => {
+    let response;
+    if (!req.file || !req.query.pages) {
+      response = responseMessage.incorrectPayload;
+      return callback(null, response, response.code);
+    }
+    const path = req.file.path;
+    try {
+      const res = await cloudinary.uploader.upload(path, {
+        folder: 'pdfs',
+        resource_type: 'auto',
+        page: req.query.pages,
+      });
+      console.log(res);
+      response = new responseMessage.GenericSuccessMessage();
+      response.media = {
+        publicId: res.public_id,
+        url: res.secure_url,
+      };
+      return callback(null, response, response.code);
+    } catch (err) {
+      console.log('ERROR in cloudPdfUpload service', err);
+      response = new responseMessage.GenericFailureMessage();
+      return callback(null, response, response.code);
+    }
+  },
 };

@@ -12,6 +12,10 @@ uploadRouter.post('/cloud/image', (req, res, next) => {
   uploadController.uploadImage(req, res);
 });
 
+uploadRouter.post('/cloud/pdf', (req, res, next) => {
+  uploadController.uploadPdf(req, res);
+});
+
 module.exports = {
   uploadRouter,
 };

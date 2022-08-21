@@ -39,7 +39,7 @@ module.exports = {
 
   cloudPdfUpload: async (req, callback) => {
     let response;
-    if (!req.file || !req.query.pages) {
+    if (!req.file) {
       response = responseMessage.incorrectPayload;
       return callback(null, response, response.code);
     }
@@ -48,9 +48,8 @@ module.exports = {
       const res = await cloudinary.uploader.upload(path, {
         folder: 'pdfs',
         resource_type: 'auto',
-        page: req.query.pages,
       });
-      console.log(res);
+      // console.log(res);
       response = new responseMessage.GenericSuccessMessage();
       response.media = {
         publicId: res.public_id,

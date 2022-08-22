@@ -33,4 +33,10 @@ module.exports = {
       }
     });
   },
+
+  textExtract: (req, res) => {
+    uploadService.textExtract(req, (err, data, statusCode) => {
+      return responseHelper(err, res, data, statusCode);
+    });
+  },
 };

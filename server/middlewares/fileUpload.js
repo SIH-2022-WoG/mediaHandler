@@ -34,6 +34,7 @@ module.exports = {
           'Error ::: file uploading process failed with error: ',
           JSON.stringify(err)
         );
+        console.log(err);
         const response = responseMessage.fileUploadFailed;
         return res.status(response.code).send(response);
       } else {

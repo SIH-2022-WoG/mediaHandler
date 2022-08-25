@@ -1,6 +1,7 @@
 'use strict';
 
 const responseHelper = require('../utils/responseHelper');
+const responseMessage = require('../utils/responseMessage');
 const uploadService = require('./uploadService');
 
 module.exports = {
@@ -38,5 +39,25 @@ module.exports = {
     uploadService.textExtract(req, (err, data, statusCode) => {
       return responseHelper(err, res, data, statusCode);
     });
+  },
+
+  uploadThesis: async (req, res) => {
+    const pages = Number(req.query.ps);
+    const promises = [];
+    let response;
+    for (let i = 1; i < pages + 1; i++) {
+      req.query.pn = Number(i);
+      console.log(i);
+      promises.push(uploadService.createTextAsync(req));
+    }
+
+    try {
+      const result = await Promise.all(promises);
+      response = new responseMessage.GenericSuccessMessage();
+      response.data = result;
+      return responseHelper(null, res, response, response.code);
+    } catch (err) {
+      console.log('error ::: ', err);
+    }
   },
 };

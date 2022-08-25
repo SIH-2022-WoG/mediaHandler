@@ -31,6 +31,18 @@ function PDFNetEndpoint(main, pathname, callback) {
     });
 }
 
+function PDFNetAsyncEndpoint(main) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await PDFNet.runWithCleanup(main, process.env.PDF_TRON_TRIAL_KEY); //
+      resolve('sucess');
+    } catch (err) {
+      console.log(err);
+      reject('error');
+    }
+  });
+}
+
 module.exports = {
   localFileUpload: (req, callback) => {
     const response = new responseMessage.GenericSuccessMessage();
@@ -143,5 +155,47 @@ module.exports = {
     };
 
     PDFNetEndpoint(main, outputPath, callback);
+  },
+
+  createTextAsync: (req) => {
+    return new Promise((resolve, reject) => {
+      const data = [];
+      const filename = req.query.fn;
+      const pageNumber = Number(req.query.pn);
+      const main = async () => {
+        const filesPath = '../../uploadFile';
+        const inputPath = path.resolve(__dirname, filesPath, filename);
+        await PDFNet.initialize();
+        try {
+          const pdfdoc = await PDFNet.PDFDoc.createFromFilePath(inputPath);
+          await pdfdoc.initSecurityHandler();
+          const page = await pdfdoc.getPage(pageNumber);
+
+          if (!page) {
+            reject('Error ::: no page provided');
+          }
+          const txt = await PDFNet.TextExtractor.create();
+          const rect = new PDFNet.Rect(0, 0, 612, 794);
+          txt.begin(page, rect);
+          let text;
+          text = await txt.getAsText();
+          console.log(text);
+          console.log('text');
+          data.push(text);
+        } catch (err) {
+          console.log(err);
+          reject('error', err);
+        }
+      };
+
+      PDFNetAsyncEndpoint(main)
+        .then(() => {
+          resolve(data);
+        })
+        .catch((err) => {
+          console.log(err);
+          return reject(err);
+        });
+    });
   },
 };

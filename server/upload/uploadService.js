@@ -102,6 +102,32 @@ module.exports = {
     }
   },
 
+  cloudTextUpload: async (req, callback) => {
+    let response;
+    if (!req.file) {
+      response = responseMessage.incorrectPayload;
+      return callback(null, response, response.code);
+    }
+    const path = req.file.path;
+    try {
+      const res = await cloudinary.uploader.upload(path, {
+        folder: 'texts',
+        resource_type: 'auto',
+      });
+      // console.log(res);
+      response = new responseMessage.GenericSuccessMessage();
+      response.media = {
+        publicId: res.public_id,
+        url: res.secure_url,
+      };
+      return callback(null, response, response.code);
+    } catch (err) {
+      console.log('ERROR in cloudPdfUpload service', err);
+      response = new responseMessage.GenericFailureMessage();
+      return callback(null, response, response.code);
+    }
+  },
+
   textExtract: async (req, callback) => {
     const filename = req.query.fn;
     let pageNumber = Number(req.query.pn);
@@ -159,6 +185,12 @@ module.exports = {
 
   createTextAsync: (req) => {
     return new Promise((resolve, reject) => {
+      console.log(
+        'Create text async called for....',
+        req.query.fn,
+        req.query.pn
+      );
+
       const data = [];
       const filename = req.query.fn;
       const pageNumber = Number(req.query.pn);
@@ -167,6 +199,7 @@ module.exports = {
         const inputPath = path.resolve(__dirname, filesPath, filename);
         await PDFNet.initialize();
         try {
+          console.log(inputPath);
           const pdfdoc = await PDFNet.PDFDoc.createFromFilePath(inputPath);
           await pdfdoc.initSecurityHandler();
           const page = await pdfdoc.getPage(pageNumber);

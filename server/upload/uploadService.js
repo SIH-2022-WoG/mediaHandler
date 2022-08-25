@@ -4,6 +4,7 @@
 const cloudinary = require('cloudinary').v2;
 const path = require('path');
 const { PDFNet } = require('@pdftron/pdfnet-node');
+const pdfParse = require('pdf-parse');
 const fs = require('fs');
 const responseMessage = require('../utils/responseMessage');
 
@@ -227,6 +228,46 @@ module.exports = {
           console.log(err);
           return reject(err);
         });
+    });
+  },
+
+  multiLangExtract: (req) => {
+    return new Promise(async (resolve, reject) => {
+      const data = fs.readFileSync(req.file.path);
+      try {
+        let thesisData = await pdfParse(data);
+        const thesisContent = thesisData.text
+          .replaceAll('\n', '')
+          .replaceAll('\t', '');
+        resolve(thesisContent);
+      } catch (err) {
+        console.log(err);
+        reject(err);
+      }
+    });
+  },
+
+  cloudUploadThesisAsync: (req) => {
+    return new Promise(async (resolve, reject) => {
+      const pdfpath = req.file.path;
+      const textpath = req.textPath;
+      try {
+        const pdfRes = await cloudinary.uploader.upload(pdfpath, {
+          folder: 'pdfs',
+          resource_type: 'auto',
+        });
+        const textRes = await cloudinary.uploader.upload(textpath, {
+          folder: 'texts',
+          resource_type: 'auto',
+        });
+        const res = {
+          textRes,
+          pdfRes,
+        };
+        resolve(res);
+      } catch (err) {
+        reject(err);
+      }
     });
   },
 };

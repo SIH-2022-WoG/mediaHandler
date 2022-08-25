@@ -47,7 +47,6 @@ module.exports = {
     let response;
     for (let i = 1; i < pages + 1; i++) {
       req.query.pn = Number(i);
-      console.log(i);
       promises.push(uploadService.createTextAsync(req));
     }
 

@@ -179,8 +179,6 @@ module.exports = {
           txt.begin(page, rect);
           let text;
           text = await txt.getAsText();
-          console.log(text);
-          console.log('text');
           data.push(text);
         } catch (err) {
           console.log(err);

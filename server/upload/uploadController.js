@@ -56,37 +56,47 @@ module.exports = {
   uploadThesis: (req, res) => {
     uploadService.localFileUpload(req, async (err, localdata, statusCode) => {
       if (parseInt(statusCode) === 200) {
-        console.log(localdata);
+        // console.log(localdata);
         const pages = Number(req.query.ps);
         req.query.fn = localdata.data.filename;
-        const promises = [];
-        let response;
-        for (let i = 1; i < pages + 1; i++) {
-          req.query.pn = Number(i);
-          promises.push(uploadService.createTextAsync(req));
-        }
-        const filesPath = '../../uploadFile';
-        const randomText = makeid(5);
-        const filename = req.query.fn.slice(0, -4) + randomText + '.txt';
-        const filePath = path.resolve(__dirname, filesPath, filename);
+        uploadService.cloudPdfUpload(req, async (err, pdfdata, statusCode) => {
+          if (parseInt(statusCode) === 200) {
+            const promises = [];
+            let response;
+            for (let i = 1; i < pages + 1; i++) {
+              req.query.pn = Number(i);
+              promises.push(uploadService.createTextAsync(req));
+            }
+            const filesPath = '../../uploadFile';
+            const randomText = makeid(5);
+            const filename = req.query.fn.slice(0, -4) + randomText + '.txt';
+            const filePath = path.resolve(__dirname, filesPath, filename);
 
-        try {
-          const result = await Promise.all(promises);
-          response = new responseMessage.GenericSuccessMessage();
-          result.forEach((el) => {
-            fs.appendFileSync(filePath, el[0]);
-          });
-          response.path = filename;
-          req.file = {
-            filename,
-            path: filePath,
-          };
-          uploadService.cloudTextUpload(req, (err, textdata, statusCode) => {
-            return responseHelper(err, res, textdata, statusCode);
-          });
-        } catch (err) {
-          console.log('error ::: ', err);
-        }
+            try {
+              const result = await Promise.all(promises);
+              response = new responseMessage.GenericSuccessMessage();
+              result.forEach((el) => {
+                fs.appendFileSync(filePath, el[0]);
+              });
+              response.path = filename;
+              req.file = {
+                filename,
+                path: filePath,
+              };
+              uploadService.cloudTextUpload(
+                req,
+                (err, textdata, statusCode) => {
+                  textdata.pdfdata = pdfdata;
+                  return responseHelper(err, res, textdata, statusCode);
+                }
+              );
+            } catch (err) {
+              console.log('error ::: ', err);
+            }
+          } else {
+            return responseHelper(err, res, pdfdata, statusCode);
+          }
+        });
       } else {
         return responseHelper(err, res, localdata, statusCode);
       }

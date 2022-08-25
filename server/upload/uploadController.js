@@ -157,8 +157,14 @@ module.exports = {
     let response;
     try {
       const data = await uploadService.multiLangExtract(req);
+      const filesPath = '../../uploadFile';
+      const randomText = makeid(5) + '.txt';
+      const filePath = path.resolve(__dirname, filesPath, randomText);
+      req.textPath = filePath;
+      fs.writeFileSync(filePath, data);
+      const cloudData = await uploadService.cloudUploadThesisAsync(req);
       response = new responseMessage.GenericSuccessMessage();
-      response.data = data;
+      response.data = cloudData;
       return responseHelper(null, res, response, response.code);
     } catch (err) {
       console.log(err);

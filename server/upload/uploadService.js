@@ -233,17 +233,39 @@ module.exports = {
 
   multiLangExtract: (req) => {
     return new Promise(async (resolve, reject) => {
-      const filename = 'deloitte.pdf';
-      const filesPath = '../../uploadFile';
-      const inputPath = path.resolve(__dirname, filesPath, filename);
-      const data = fs.readFileSync(inputPath);
-
+      const data = fs.readFileSync(req.file.path);
       try {
-        const thesisContent = await pdfParse(data);
-        console.log(thesisContent);
+        let thesisData = await pdfParse(data);
+        const thesisContent = thesisData.text
+          .replaceAll('\n', '')
+          .replaceAll('\t', '');
         resolve(thesisContent);
       } catch (err) {
         console.log(err);
+        reject(err);
+      }
+    });
+  },
+
+  cloudUploadThesisAsync: (req) => {
+    return new Promise(async (resolve, reject) => {
+      const pdfpath = req.file.path;
+      const textpath = req.textPath;
+      try {
+        const pdfRes = await cloudinary.uploader.upload(pdfpath, {
+          folder: 'pdfs',
+          resource_type: 'auto',
+        });
+        const textRes = await cloudinary.uploader.upload(textpath, {
+          folder: 'texts',
+          resource_type: 'auto',
+        });
+        const res = {
+          textRes,
+          pdfRes,
+        };
+        resolve(res);
+      } catch (err) {
         reject(err);
       }
     });

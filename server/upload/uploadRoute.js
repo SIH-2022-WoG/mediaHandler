@@ -21,6 +21,10 @@ uploadRouter.get('/textExtract', (req, res, next) => {
   uploadController.textExtract(req, res);
 });
 
+uploadRouter.post('/cloud/thesis', (req, res, next) => {
+  uploadController.uploadThesis(req, res);
+});
+
 module.exports = {
   uploadRouter,
 };

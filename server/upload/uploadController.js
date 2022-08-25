@@ -1,8 +1,20 @@
 'use strict';
-
+const fs = require('fs');
+const path = require('path');
 const responseHelper = require('../utils/responseHelper');
 const responseMessage = require('../utils/responseMessage');
 const uploadService = require('./uploadService');
+
+function makeid(length) {
+  var result = '';
+  var characters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var charactersLength = characters.length;
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
 
 module.exports = {
   uploadFile: (req, res) => {
@@ -49,11 +61,18 @@ module.exports = {
       req.query.pn = Number(i);
       promises.push(uploadService.createTextAsync(req));
     }
+    const filesPath = '../../uploadFile';
+    const randomText = makeid(5);
+    const filename = req.query.fn.slice(0, -4) + randomText + '.txt';
+    const filePath = path.resolve(__dirname, filesPath, filename);
 
     try {
       const result = await Promise.all(promises);
       response = new responseMessage.GenericSuccessMessage();
-      response.data = result;
+      result.forEach((el) => {
+        fs.appendFileSync(filePath, el[0]);
+      });
+      response.path = filename;
       return responseHelper(null, res, response, response.code);
     } catch (err) {
       console.log('error ::: ', err);

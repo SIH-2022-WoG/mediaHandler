@@ -25,6 +25,10 @@ uploadRouter.post('/cloud/thesis', (req, res, next) => {
   uploadController.uploadThesis(req, res);
 });
 
+uploadRouter.post('/cloud/multilang', (req, res, next) => {
+  uploadController.multiLangExtract(req, res);
+});
+
 module.exports = {
   uploadRouter,
 };

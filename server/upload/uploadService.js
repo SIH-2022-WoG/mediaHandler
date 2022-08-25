@@ -4,6 +4,7 @@
 const cloudinary = require('cloudinary').v2;
 const path = require('path');
 const { PDFNet } = require('@pdftron/pdfnet-node');
+const pdfParse = require('pdf-parse');
 const fs = require('fs');
 const responseMessage = require('../utils/responseMessage');
 
@@ -227,6 +228,24 @@ module.exports = {
           console.log(err);
           return reject(err);
         });
+    });
+  },
+
+  multiLangExtract: (req) => {
+    return new Promise(async (resolve, reject) => {
+      const filename = 'deloitte.pdf';
+      const filesPath = '../../uploadFile';
+      const inputPath = path.resolve(__dirname, filesPath, filename);
+      const data = fs.readFileSync(inputPath);
+
+      try {
+        const thesisContent = await pdfParse(data);
+        console.log(thesisContent);
+        resolve(thesisContent);
+      } catch (err) {
+        console.log(err);
+        reject(err);
+      }
     });
   },
 };

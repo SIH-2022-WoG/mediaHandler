@@ -156,10 +156,13 @@ module.exports = {
   multiLangExtract: async (req, res) => {
     let response;
     try {
+      // console.log(req.file);
       const data = await uploadService.multiLangExtract(req);
+      // console.log(data);
       const filesPath = '../../uploadFile';
       const randomText = makeid(5) + '.txt';
       const filePath = path.resolve(__dirname, filesPath, randomText);
+      console.log(filePath);
       req.textPath = filePath;
       fs.writeFileSync(filePath, data);
       const cloudData = await uploadService.cloudUploadThesisAsync(req);
@@ -169,7 +172,7 @@ module.exports = {
     } catch (err) {
       console.log(err);
       response = new responseMessage.GenericFailureMessage();
-      return responseHelper(err, res, response, response.code);
+      return responseHelper(null, res, response, response.code);
     }
   },
 };

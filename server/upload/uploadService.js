@@ -233,7 +233,12 @@ module.exports = {
 
   multiLangExtract: (req) => {
     return new Promise(async (resolve, reject) => {
+      if (!req.file || req.file.path) {
+        reject('file path is missing');
+      }
+
       const data = fs.readFileSync(req.file.path);
+
       try {
         let thesisData = await pdfParse(data);
         const thesisContent = thesisData.text

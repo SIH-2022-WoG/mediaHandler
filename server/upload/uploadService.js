@@ -233,7 +233,8 @@ module.exports = {
 
   multiLangExtract: (req) => {
     return new Promise(async (resolve, reject) => {
-      if (!req.file || req.file.path) {
+      console.log('multilang extract ');
+      if (!req.file || !req.file.path) {
         reject('file path is missing');
       }
 
@@ -256,6 +257,7 @@ module.exports = {
     return new Promise(async (resolve, reject) => {
       const pdfpath = req.file.path;
       const textpath = req.textPath;
+      console.log('INFO :::: data for ', pdfpath, textpath);
       try {
         const pdfRes = await cloudinary.uploader.upload(pdfpath, {
           folder: 'pdfs',

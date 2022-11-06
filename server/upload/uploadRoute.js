@@ -17,6 +17,10 @@ uploadRouter.post('/cloud/pdf', (req, res, next) => {
   uploadController.uploadPdf(req, res);
 });
 
+uploadRouter.post('/cloud/text', (req, res, next) => {
+  uploadController.uploadText(req, res);
+});
+
 uploadRouter.get('/textExtract', (req, res, next) => {
   uploadController.textExtract(req, res);
 });

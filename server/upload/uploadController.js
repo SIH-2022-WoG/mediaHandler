@@ -47,6 +47,18 @@ module.exports = {
     });
   },
 
+  uploadText: (req, res) => {
+    uploadService.localFileUpload(req, (err, localdata, statusCode) => {
+      if (statusCode === 200) {
+        uploadService.cloudTextUpload(req, (err, pdfdata, statusCode) => {
+          return responseHelper(err, res, pdfdata, statusCode);
+        });
+      } else {
+        return responseHelper(err, res, localdata, statusCode);
+      }
+    });
+  },
+
   textExtract: (req, res) => {
     uploadService.textExtract(req, (err, data, statusCode) => {
       return responseHelper(err, res, data, statusCode);
